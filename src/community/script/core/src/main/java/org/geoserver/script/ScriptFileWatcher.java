@@ -24,15 +24,30 @@ import org.geoserver.platform.FileWatcher;
 public class ScriptFileWatcher extends FileWatcher<ScriptEngine> {
 
     ScriptManager scriptMgr;
+    ScriptEngine engine;
 
     public ScriptFileWatcher(File file, ScriptManager scriptMgr) {
         super(file);
         this.scriptMgr = scriptMgr;
     }
+    
+    /**
+     * Create a new script engine and evaluate the script if modified since the
+     * last call to read.  Otherwise return the existing engine.
+     * @return
+     * @throws IOException
+     */
+    public ScriptEngine readIfModified() throws IOException {
+        if (isModified()) {
+            return read();
+        } else {
+            return engine;
+        }
+    }
 
     @Override
     protected ScriptEngine parseFileContents(InputStream in) throws IOException {
-        ScriptEngine engine = scriptMgr.createNewEngine(getFile());
+        engine = scriptMgr.createNewEngine(getFile());
         try {
             engine.eval(new InputStreamReader(in));
         } catch (ScriptException e) {

@@ -63,7 +63,7 @@ public class ScriptFunction {
                 for (Expression e : getParameters()) {
                     args.add(e.evaluate(object));
                 }
-                return hook.run(object, args, watcher.read());
+                return hook.run(object, args, watcher.readIfModified());
             }
             catch(Exception e) {
                 throw new RuntimeException(e);

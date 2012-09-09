@@ -37,7 +37,7 @@ public class ScriptProcess implements Process {
     Name name;
     
     /** watcher for file changes */
-    FileWatcher<ScriptEngine> fw;
+    ScriptFileWatcher fw;
     
     /** script manager */
     ScriptManager scriptMgr;
@@ -54,23 +54,23 @@ public class ScriptProcess implements Process {
     }
 
     public String getTitle() throws ScriptException, IOException {
-        return hook.getTitle(fw.read());
+        return hook.getTitle(fw.readIfModified());
     }
 
     String getVersion() throws ScriptException, IOException {
-        return hook.getVersion(fw.read());
+        return hook.getVersion(fw.readIfModified());
     }
 
     public String getDescription() throws ScriptException, IOException {
-        return hook.getDescription(fw.read());
+        return hook.getDescription(fw.readIfModified());
     }
 
     public Map<String, Parameter<?>> getInputs() throws ScriptException, IOException {
-        return hook.getInputs(fw.read());
+        return hook.getInputs(fw.readIfModified());
     }
 
     public Map<String, Parameter<?>> getOutputs() throws ScriptException, IOException {
-        return hook.getOutputs(fw.read());
+        return hook.getOutputs(fw.readIfModified());
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ScriptProcess implements Process {
             ProgressListener monitor) throws ProcessException {
 
         try {
-            return hook.run(input, fw.read());
+            return hook.run(input, fw.readIfModified());
         } catch (Exception e) {
             throw new ProcessException(e);
         }
