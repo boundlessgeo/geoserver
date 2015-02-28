@@ -1295,12 +1295,27 @@ public class CatalogImpl implements Catalog {
                 String name2 = name.replaceAll(REPLACE, "_");
                 // check workspace: sty_le
                 result = getStyleByName(prefix, resource2);
+                if (result != null) {
+                    return result;
+                }
                 // check workspace_sty_le
                 result = facade.getStyleByName(name2);
+                if (result != null) {
+                    return result;
+                }
+                LOGGER.log(Level.WARNING, "Style name " + name
+                        + " contains an invalid character. You may not see correct results. "
+                        + "Please update your catalog.");
                 // check workspace: sty:le
                 result = getStyleByName(prefix, resource);
+                if (result != null) {
+                    return result;
+                }
                 // check workspace:sty:le
                 result = facade.getStyleByName(name);
+                if (result != null) {
+                    return result;
+                }
             }
         } 
         if (result == null) {
@@ -1309,6 +1324,7 @@ public class CatalogImpl implements Catalog {
         
         return result;
     }
+
 
     public StyleInfo getStyleByName(String workspaceName, String name) {
         if (workspaceName == null) {
