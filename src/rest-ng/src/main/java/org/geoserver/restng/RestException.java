@@ -1,7 +1,5 @@
 package org.geoserver.restng;
 
-import java.io.IOException;
-
 import org.springframework.http.HttpStatus;
 
 /**

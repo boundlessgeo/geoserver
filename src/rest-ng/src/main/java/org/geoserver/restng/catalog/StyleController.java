@@ -61,17 +61,13 @@ import com.google.common.io.Files;
     MediaType.TEXT_HTML_VALUE})
 public class StyleController extends CatalogController {
 
-    private final List<String> validImageFileExtensions;
+
 
     private static final Logger LOGGER = Logging.getLogger(StyleController.class);
-
-    private final GeoServerDataDirectory dataDir;
 
     @Autowired
     public StyleController(Catalog catalog) {
         super(catalog);
-        this.validImageFileExtensions = Arrays.asList(new String[]{"svg", "png", "jpg"});
-        this.dataDir = new GeoServerDataDirectory(catalog.getResourceLoader());
     }
 
     @RequestMapping(value = "/styles", method = RequestMethod.GET,

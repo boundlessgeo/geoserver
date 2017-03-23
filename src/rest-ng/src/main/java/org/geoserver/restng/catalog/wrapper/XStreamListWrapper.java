@@ -3,8 +3,10 @@ package org.geoserver.restng.catalog.wrapper;
 import java.util.Collection;
 
 /**
- * A wrapper for all Collection type responses. In the previous rest API this wasn't needed because in
- * each individual rest request the Collections were aliased to
+ * A wrapper for all Collection type responses using the {@link org.geoserver.restng.converters.XStreamCatalogListConverter}
+ * (XML and JSON output).
+ *
+ * In the previous rest API this wasn't needed because in each individual rest request the Collections were aliased to
  */
 public class XStreamListWrapper<T> {
 

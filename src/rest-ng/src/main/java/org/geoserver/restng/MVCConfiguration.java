@@ -5,9 +5,9 @@ import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.Styles;
 import org.geoserver.restng.converters.FreemarkerHTMLMessageConverter;
-import org.geoserver.restng.converters.JSONMessageConverter;
+import org.geoserver.restng.converters.XStreamJSONMessageConverter;
 import org.geoserver.restng.converters.StyleConverter;
-import org.geoserver.restng.converters.XMLMessageConverter;
+import org.geoserver.restng.converters.XStreamXMLMessageConverter;
 import org.geoserver.restng.converters.XStreamCatalogListConverter;
 import org.geotools.util.Version;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +38,8 @@ public class MVCConfiguration extends WebMvcConfigurationSupport {
 
         //Ordered according to priority (highest first)
         converters.add(new FreemarkerHTMLMessageConverter(applicationContext, "UTF-8"));
-        converters.add(new XMLMessageConverter(applicationContext));
-        converters.add(new JSONMessageConverter(applicationContext));
+        converters.add(new XStreamXMLMessageConverter(applicationContext));
+        converters.add(new XStreamJSONMessageConverter(applicationContext));
         converters.add(new XStreamCatalogListConverter.XMLXStreamListConverter(applicationContext));
         converters.add(new XStreamCatalogListConverter.JSONXStreamListConverter(applicationContext));
 

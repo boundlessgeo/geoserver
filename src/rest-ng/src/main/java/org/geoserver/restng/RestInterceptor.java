@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Interceptor for all rest requests
+ * Interceptor for all rest-ng requests
  *
  * Adds a {@link RequestInfo} to the request attributes
  */

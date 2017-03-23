@@ -30,7 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  *
  * - Make requests without any accepts and then look for an exact string in the response. Without
  *   the accepts header spring has no idea what the response should be, so it tries to pick the first
- *   default based on the producible media types. This is, frequently, JSON
+ *   default based on the producible media types. This is, frequently, HTML
  *
  */
 @ControllerAdvice
