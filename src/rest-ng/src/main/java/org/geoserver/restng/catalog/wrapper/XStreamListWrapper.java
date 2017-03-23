@@ -6,13 +6,31 @@ import java.util.Collection;
  * A wrapper for all Collection type responses. In the previous rest API this wasn't needed because in
  * each individual rest request the Collections were aliased to
  */
-public interface XStreamListWrapper<T> {
-    /**
-     * Get the class of the wrapped object (or class of the collection contents)
-     *
-     * @return
-     */
-    Class getObjectClass();
+public class XStreamListWrapper<T> {
 
-    Collection<T> getCollection();
+    Collection<T> collection;
+    Class<T> clazz;
+
+    public XStreamListWrapper(Collection<T> collection, Class<T> clazz) {
+        this.collection = collection;
+        this.clazz = clazz;
+    }
+
+    /**
+     * Get the class of the collection contents
+     *
+     * @return class of the collection contents
+     */
+    public Class<T> getObjectClass() {
+        return clazz;
+    }
+
+    /**
+     * Get the wrapped collection
+     *
+     * @return wrapped collection
+     */
+    public Collection<T> getCollection() {
+        return collection;
+    }
 }

@@ -27,7 +27,7 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.rest.util.IOUtils;
 import org.geoserver.restng.ResourceNotFoundException;
 import org.geoserver.restng.RestException;
-import org.geoserver.restng.catalog.wrapper.Styles;
+import org.geoserver.restng.catalog.wrapper.XStreamListWrapper;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.styling.SLDParser;
 import org.geoserver.restng.wrapper.FreemarkerConfigurationWrapper;
@@ -76,17 +76,17 @@ public class StyleController extends CatalogController {
 
     @RequestMapping(value = "/styles", method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public Styles getStyles() {
+    public XStreamListWrapper getStyles() {
 
         List<StyleInfo> styles = catalog.getStylesByWorkspace(CatalogFacade.NO_WORKSPACE);
-        return new Styles(styles);
+        return toXStreamList(styles, StyleInfo.class);
     }
 
     @RequestMapping(value = "/workspaces/{workspaceName}/styles", method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public Styles getStylesFromWorkspace(@PathVariable String workspaceName) {
+    public XStreamListWrapper getStylesFromWorkspace(@PathVariable String workspaceName) {
         LOGGER.fine("GET styles for workspace " + workspaceName);
-        return new Styles(catalog.getStylesByWorkspace(workspaceName));
+        return toXStreamList(catalog.getStylesByWorkspace(workspaceName), StyleInfo.class);
     }
 
     @RequestMapping(value = "/styles", method = RequestMethod.GET, produces = {MediaType.TEXT_HTML_VALUE})

@@ -7,6 +7,7 @@ import freemarker.ext.beans.MapModel;
 import freemarker.template.*;
 import org.geoserver.ows.util.ClassProperties;
 import org.geoserver.ows.util.OwsUtils;
+import org.geoserver.restng.catalog.wrapper.XStreamListWrapper;
 import org.geoserver.restng.wrapper.FreemarkerConfigurationWrapper;
 import org.geotools.util.logging.Logging;
 import org.springframework.web.context.request.RequestAttributes;
@@ -197,6 +198,17 @@ public class RestController {
      */
     protected String getTemplateName(Object object) {
         return null;
+    }
+
+    /**
+     * Wraps the passed collection in a {@link XStreamListWrapper}
+     *
+     * @param list The collection to wrap
+     * @param clazz The advertised class to use for the collection contents
+     * @return
+     */
+    protected <T> XStreamListWrapper<T> toXStreamList(Collection<T> list, Class<T> clazz) {
+        return new XStreamListWrapper<>(list, clazz);
     }
 
     /**
