@@ -16,6 +16,7 @@ import org.springframework.batch.core.JobExecution;
 public class RestoreExecutionAdapter extends AbstractExecutionAdapter {
 
     private Catalog restoreCatalog;
+    private String paramReplacementSeparator = ",";
 
     public RestoreExecutionAdapter(JobExecution jobExecution, Integer totalNumberOfSteps) {
         super(jobExecution, totalNumberOfSteps);
@@ -35,4 +36,11 @@ public class RestoreExecutionAdapter extends AbstractExecutionAdapter {
         this.restoreCatalog = catalog;
     }
 
+    public String getParamReplacementSeparator() {
+        return paramReplacementSeparator;
+    }
+
+    public void setParamReplacementSeparator(String paramReplacementSeparator) {
+        this.paramReplacementSeparator = paramReplacementSeparator;
+    }
 }

@@ -76,6 +76,8 @@ public class Backup extends JobExecutionListenerSupport
 
     public static final String PARAM_SKIP_GWC = "BK_SKIP_GWC";
 
+    public static final String REPLACEMENT_SEPARATOR = "REPLACEMENT_SEPARATOR"; //the separator to use on tokenized replacements. use this if your passwords or other replaced values contain commas, the default separator
+
     static Logger LOGGER = Logging.getLogger(Backup.class);
 
     /* Job Parameters Keys **/
@@ -435,11 +437,15 @@ public class Backup extends JobExecutionListenerSupport
         }
     }
 
-    public RestoreExecutionAdapter runRestoreAsync(final Resource archiveFile, final Filter filter,
-        final Map<String, String> params) throws IOException {
+    public RestoreExecutionAdapter runRestoreAsync(
+            final Resource archiveFile,
+            final Filter filter,
+            Map<String, String> params)
+            throws IOException {
 
         JobParametersBuilder paramsBuilder = new JobParametersBuilder();
         params.forEach(paramsBuilder::addString);
+
         return runRestoreAsync(archiveFile, filter, paramsBuilder);
     }
 
