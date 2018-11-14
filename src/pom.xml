@@ -1900,7 +1900,7 @@
 
  <properties>
   <gs.version>2.14.0-BSE-00001</gs.version>
-  <gt.version>20-SNAPSHOT</gt.version>
+  <gt.version>20.0-BSE-00001</gt.version>
   <gwc.version>1.14.0-BSE-00001</gwc.version>
   <jts.version>1.16.0</jts.version>
   <spring.version>4.3.18.RELEASE</spring.version>
