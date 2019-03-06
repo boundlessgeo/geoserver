@@ -88,6 +88,7 @@ public abstract class AbstractDbPanel extends ImportSourcePanel {
 
         // build up the store connection param map
         Map<String, Serializable> params = new HashMap<String, Serializable>();
+        fillStoreParams(params);
 
         return new Database(params);
 
