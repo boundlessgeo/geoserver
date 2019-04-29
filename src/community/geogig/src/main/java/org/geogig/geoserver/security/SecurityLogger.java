@@ -28,8 +28,8 @@ import org.locationtech.geogig.remotes.PullOp;
 import org.locationtech.geogig.remotes.PullResult;
 import org.locationtech.geogig.remotes.PushOp;
 import org.locationtech.geogig.remotes.RefDiff;
-import org.locationtech.geogig.remotes.RemoteAddOp;
-import org.locationtech.geogig.remotes.RemoteRemoveOp;
+import org.locationtech.geogig.plumbing.remotes.RemoteAddOp;
+import org.locationtech.geogig.plumbing.remotes.RemoteRemoveOp;
 import org.locationtech.geogig.remotes.TransferSummary;
 import org.locationtech.geogig.repository.AbstractGeoGigOp;
 import org.locationtech.geogig.repository.Context;
@@ -213,8 +213,7 @@ public class SecurityLogger implements InitializingBean {
         @Override
         String params(PullOp c) {
             return format(
-                    "remote=%s, refSpecs=%s, depth=%s, author=%s, author email=%s",
-                    c.getRemoteName(),
+                    "refSpecs=%s, depth=%s, author=%s, author email=%s",
                     c.getRefSpecs(),
                     c.getDepth(),
                     c.getAuthor(),

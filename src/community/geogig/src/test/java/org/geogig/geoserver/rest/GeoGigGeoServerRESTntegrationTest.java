@@ -28,7 +28,7 @@ import org.geotools.data.DataStore;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.locationtech.geogig.plumbing.ResolveGeogigDir;
+import org.locationtech.geogig.plumbing.ResolveGeogigURI;
 import org.locationtech.geogig.porcelain.InitOp;
 import org.locationtech.geogig.repository.RepositoryResolver;
 import org.locationtech.geogig.repository.impl.GeoGIG;
@@ -110,8 +110,8 @@ public class GeoGigGeoServerRESTntegrationTest extends CatalogRESTTestSupport {
         GeoGIG geogig = geogigData.createRepository("new_repo");
         try {
             geogig.command(InitOp.class).call();
-            File repo = geogig.command(ResolveGeogigDir.class).getFile().get();
-            final URI location = repo.getParentFile().getAbsoluteFile().toURI();
+
+            final URI location = geogig.getRepository().getLocation();
             RepositoryManager manager = RepositoryManager.get();
             RepositoryInfo info = new RepositoryInfo();
             info.setLocation(location);
@@ -163,8 +163,7 @@ public class GeoGigGeoServerRESTntegrationTest extends CatalogRESTTestSupport {
         GeoGIG geogig = geogigData.createRepository("new_repo1");
         try {
             geogig.command(InitOp.class).call();
-            File repo = geogig.command(ResolveGeogigDir.class).getFile().get();
-            final URI location = repo.getParentFile().getAbsoluteFile().toURI();
+            final URI location = geogig.getRepository().getLocation();
             RepositoryManager manager = RepositoryManager.get();
             RepositoryInfo info = new RepositoryInfo();
             info.setLocation(location);

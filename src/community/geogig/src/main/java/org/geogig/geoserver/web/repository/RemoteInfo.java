@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.locationtech.geogig.model.Ref;
+import org.locationtech.geogig.remote.http.HttpRemoteResolver;
 import org.locationtech.geogig.repository.Remote;
 
 /** A {@link Remote} representation for the presentation layer */
@@ -103,7 +104,7 @@ public class RemoteInfo implements Serializable {
         ri.setUserName(userName);
         String password = remote.getPassword();
         if (password != null) {
-            password = Remote.decryptPassword(password);
+            password = HttpRemoteResolver.decryptPassword(password);
         }
         ri.setPassword(password);
         ri.id = ri.hashCode();

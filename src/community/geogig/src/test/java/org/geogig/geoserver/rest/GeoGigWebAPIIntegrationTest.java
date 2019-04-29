@@ -64,8 +64,8 @@ import org.locationtech.geogig.plumbing.RevObjectParse;
 import org.locationtech.geogig.repository.Repository;
 import org.locationtech.geogig.repository.RepositoryResolver;
 import org.locationtech.geogig.repository.impl.GeoGIG;
-import org.locationtech.geogig.storage.datastream.DataStreamSerializationFactoryV1;
-import org.locationtech.geogig.storage.impl.ObjectSerializingFactory;
+import org.locationtech.geogig.storage.datastream.DataStreamRevObjectSerializerV1;
+import org.locationtech.geogig.storage.RevObjectSerializer;
 import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.springframework.http.MediaType;
@@ -216,7 +216,7 @@ public class GeoGigWebAPIIntegrationTest extends GeoServerSystemTestSupport {
 
         responseStream = getBinaryInputStream(servletResponse);
 
-        ObjectSerializingFactory factory = DataStreamSerializationFactoryV1.INSTANCE;
+        RevObjectSerializer factory = DataStreamRevObjectSerializerV1.INSTANCE;
 
         RevObject actual = factory.read(oid, responseStream);
         RevObject expected = geogig.command(RevObjectParse.class).setObjectId(oid).call().get();
@@ -257,7 +257,7 @@ public class GeoGigWebAPIIntegrationTest extends GeoServerSystemTestSupport {
 
         responseStream = getBinaryInputStream(servletResponse);
 
-        ObjectSerializingFactory factory = DataStreamSerializationFactoryV1.INSTANCE;
+        RevObjectSerializer factory = DataStreamRevObjectSerializerV1.INSTANCE;
 
         List<RevObject> objects =
                 Lists.newArrayList(new ObjectStreamIterator(responseStream, factory));
@@ -282,9 +282,9 @@ public class GeoGigWebAPIIntegrationTest extends GeoServerSystemTestSupport {
     private class ObjectStreamIterator extends AbstractIterator<RevObject> {
         private final InputStream bytes;
 
-        private final ObjectSerializingFactory formats;
+        private final RevObjectSerializer formats;
 
-        public ObjectStreamIterator(InputStream input, ObjectSerializingFactory formats) {
+        public ObjectStreamIterator(InputStream input, RevObjectSerializer formats) {
             this.bytes = input;
             this.formats = formats;
         }

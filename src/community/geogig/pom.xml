@@ -15,7 +15,7 @@
   <name>GeoGig GeoServer integration</name>
 
   <properties>
-    <geogig.version>1.3-SNAPSHOT</geogig.version>
+    <geogig.version>1.4-SNAPSHOT</geogig.version>
     <jline.version>2.12</jline.version>
     <mockito.version>2.23.0</mockito.version>
     <logback.version>1.1.2</logback.version>
@@ -24,11 +24,11 @@
   </properties>
 
   <repositories>
-    <repository>
-      <id>repo.locationtech.org</id>
-      <name>GeoGig Repository</name>
-      <url>https://repo.locationtech.org/content/repositories/geogig/</url>
-    </repository>
+<!--    <repository>-->
+<!--      <id>repo.locationtech.org</id>-->
+<!--      <name>GeoGig Repository</name>-->
+<!--      <url>https://repo.locationtech.org/content/repositories/geogig/</url>-->
+<!--    </repository>-->
     <repository>
       <id>oracle</id>
       <name>Oracles Maven Repository</name>
@@ -262,6 +262,17 @@
       <version>${geogig.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+    </dependency><dependency>
+    <groupId>org.locationtech.geogig</groupId>
+    <artifactId>geogig-cli-core</artifactId>
+    <version>${geogig.version}</version>
+    <classifier>tests</classifier>
+    <scope>test</scope>
+  </dependency>
+    <dependency>
+      <groupId>org.locationtech.geogig</groupId>
+      <artifactId>geogig-scripting</artifactId>
+      <version>${geogig.version}</version>
     </dependency>
     <dependency>
       <groupId>org.geoserver</groupId>

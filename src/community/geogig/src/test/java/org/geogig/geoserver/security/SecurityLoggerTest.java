@@ -22,8 +22,8 @@ import org.locationtech.geogig.remotes.CloneOp;
 import org.locationtech.geogig.remotes.FetchOp;
 import org.locationtech.geogig.remotes.PullOp;
 import org.locationtech.geogig.remotes.PushOp;
-import org.locationtech.geogig.remotes.RemoteAddOp;
-import org.locationtech.geogig.remotes.RemoteRemoveOp;
+import org.locationtech.geogig.plumbing.remotes.RemoteAddOp;
+import org.locationtech.geogig.plumbing.remotes.RemoteRemoveOp;
 import org.locationtech.geogig.repository.Remote;
 import org.mockito.ArgumentCaptor;
 

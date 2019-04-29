@@ -30,7 +30,7 @@ import org.locationtech.geogig.geotools.data.GeoGigDataStore;
 import org.locationtech.geogig.geotools.data.GeoGigDataStoreFactory;
 import org.locationtech.geogig.hooks.CannotRunGeogigOperationException;
 import org.locationtech.geogig.hooks.CommandHook;
-import org.locationtech.geogig.hooks.Scripting;
+import org.locationtech.geogig.scripting.Scripting;
 import org.locationtech.geogig.model.Ref;
 import org.locationtech.geogig.model.SymRef;
 import org.locationtech.geogig.plumbing.RefParse;

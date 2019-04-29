@@ -19,6 +19,8 @@ import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -57,10 +59,10 @@ import org.locationtech.geogig.model.ObjectId;
 import org.locationtech.geogig.model.RevFeature;
 import org.locationtech.geogig.model.RevFeatureType;
 import org.locationtech.geogig.model.RevTree;
-import org.locationtech.geogig.model.impl.RevFeatureBuilder;
-import org.locationtech.geogig.model.impl.RevFeatureTypeBuilder;
+import org.locationtech.geogig.model.RevFeatureBuilder;
+import org.locationtech.geogig.model.RevFeatureTypeBuilder;
 import org.locationtech.geogig.plumbing.FindTreeChild;
-import org.locationtech.geogig.plumbing.ResolveGeogigDir;
+import org.locationtech.geogig.plumbing.ResolveGeogigURI;
 import org.locationtech.geogig.plumbing.RevObjectParse;
 import org.locationtech.geogig.porcelain.AddOp;
 import org.locationtech.geogig.porcelain.BranchCreateOp;
@@ -302,11 +304,13 @@ public class GeoGigTestData extends ExternalResource {
     public GeoGigTestData insert(String parentTreePath, Feature... features) {
         WorkingTree workingTree = geogig.getContext().workingTree();
         for (Feature feature : features) {
-            RevFeatureType type = RevFeatureTypeBuilder.build(feature.getType());
+            RevFeatureTypeBuilder builder = new RevFeatureTypeBuilder();
+            RevFeatureBuilder b = new RevFeatureBuilder();
+            RevFeatureType type = builder.build(null, feature.getType());
             geogig.getRepository().objectDatabase().put(type);
             String path = NodeRef.appendChild(parentTreePath, feature.getIdentifier().getID());
             FeatureInfo info =
-                    FeatureInfo.insert(RevFeatureBuilder.build(feature), type.getId(), path);
+                    FeatureInfo.insert(b.build(feature), type.getId(), path);
             workingTree.insert(info);
         }
         return this;
@@ -397,6 +401,8 @@ public class GeoGigTestData extends ExternalResource {
     }
 
     public GeoGigTestData update(String featurePath, String attributeName, @Nullable Object value) {
+        RevFeatureTypeBuilder builder = new RevFeatureTypeBuilder();
+        RevFeatureBuilder b = new RevFeatureBuilder();
         SimpleFeature feature = getFeature(featurePath);
 
         SimpleFeatureType featureType = feature.getFeatureType();
@@ -412,14 +418,15 @@ public class GeoGigTestData extends ExternalResource {
         feature.setAttribute(attributeName, actualValue);
         Context context = geogig.getContext();
         WorkingTree workingTree = context.workingTree();
-        RevFeatureType type = RevFeatureTypeBuilder.build(featureType);
+        RevFeatureType type = builder.build(null, featureType);
         FeatureInfo info =
-                FeatureInfo.insert(RevFeatureBuilder.build(feature), type.getId(), featurePath);
+                FeatureInfo.insert(b.build(feature), type.getId(), featurePath);
         workingTree.insert(info);
         return this;
     }
 
     public SimpleFeature getFeature(String featurePath) {
+        RevFeatureTypeBuilder builder = new RevFeatureTypeBuilder();
         Context context = geogig.getContext();
         WorkingTree workingTree = context.workingTree();
         RevTree rootWorkingTree = workingTree.getTree();
@@ -446,7 +453,7 @@ public class GeoGigTestData extends ExternalResource {
 
         String id = featureRef.name();
         Feature feature =
-                new FeatureBuilder(RevFeatureTypeBuilder.build(type)).build(id, revFeature.get());
+                new FeatureBuilder(builder.build(null, type)).build(id, revFeature.get());
         return (SimpleFeature) feature;
     }
 
@@ -604,11 +611,11 @@ public class GeoGigTestData extends ExternalResource {
             ds.setWorkspace(ws);
             Map<String, Serializable> connParams = ds.getConnectionParameters();
 
-            Optional<URL> GeogigDir = geogig.command(ResolveGeogigDir.class).call();
+            Optional<URI> GeogigDir = geogig.command(ResolveGeogigURI.class).call();
             File repositoryUrl;
             try {
-                repositoryUrl = new File(GeogigDir.get().toURI()).getParentFile();
-            } catch (URISyntaxException e) {
+                repositoryUrl = new File(GeogigDir.get().toString()).getParentFile();
+            } catch (Exception e) {
                 throw Throwables.propagate(e);
             }
             assertTrue(repositoryUrl.exists() && repositoryUrl.isDirectory());
