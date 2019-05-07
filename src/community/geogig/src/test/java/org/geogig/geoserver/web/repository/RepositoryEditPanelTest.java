@@ -83,8 +83,7 @@ public class RepositoryEditPanelTest extends CommonPanelTest {
         List<String> expectedMsgs =
                 Lists.newArrayList(
                         "Field 'Repository Name' is required.",
-                        "Field 'Database Name' is required.",
-                        "Field 'Password' is required.");
+                        "Field 'Database Name' is required.");
         assertFeedbackMessages(list, expectedMsgs);
     }
 

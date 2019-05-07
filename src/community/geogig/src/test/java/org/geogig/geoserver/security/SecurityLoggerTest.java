@@ -15,6 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.locationtech.geogig.model.Ref;
 import org.locationtech.geogig.plumbing.RefParse;
+import org.locationtech.geogig.plumbing.remotes.RemoteAddOp;
+import org.locationtech.geogig.plumbing.remotes.RemoteRemoveOp;
 import org.locationtech.geogig.porcelain.BlameOp;
 import org.locationtech.geogig.porcelain.CleanOp;
 import org.locationtech.geogig.porcelain.DiffOp;
@@ -22,8 +24,6 @@ import org.locationtech.geogig.remotes.CloneOp;
 import org.locationtech.geogig.remotes.FetchOp;
 import org.locationtech.geogig.remotes.PullOp;
 import org.locationtech.geogig.remotes.PushOp;
-import org.locationtech.geogig.plumbing.remotes.RemoteAddOp;
-import org.locationtech.geogig.plumbing.remotes.RemoteRemoveOp;
 import org.locationtech.geogig.repository.Remote;
 import org.mockito.ArgumentCaptor;
 

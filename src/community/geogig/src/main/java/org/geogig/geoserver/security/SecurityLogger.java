@@ -22,14 +22,14 @@ import javax.annotation.Nullable;
 import org.geogig.geoserver.config.LogStore;
 import org.locationtech.geogig.model.ObjectId;
 import org.locationtech.geogig.model.Ref;
+import org.locationtech.geogig.plumbing.remotes.RemoteAddOp;
+import org.locationtech.geogig.plumbing.remotes.RemoteRemoveOp;
 import org.locationtech.geogig.remotes.CloneOp;
 import org.locationtech.geogig.remotes.FetchOp;
 import org.locationtech.geogig.remotes.PullOp;
 import org.locationtech.geogig.remotes.PullResult;
 import org.locationtech.geogig.remotes.PushOp;
 import org.locationtech.geogig.remotes.RefDiff;
-import org.locationtech.geogig.plumbing.remotes.RemoteAddOp;
-import org.locationtech.geogig.plumbing.remotes.RemoteRemoveOp;
 import org.locationtech.geogig.remotes.TransferSummary;
 import org.locationtech.geogig.repository.AbstractGeoGigOp;
 import org.locationtech.geogig.repository.Context;
@@ -125,15 +125,15 @@ public class SecurityLogger implements InitializingBean {
     private String repoUrl(AbstractGeoGigOp<?> command) {
         Context context = command.context();
         if (context == null) {
-            return null;
+            return "null";
         }
         Repository repository = context.repository();
         if (repository == null) {
-            return null;
+            return "null";
         }
         URI location = repository.getLocation();
         if (location == null) {
-            return null;
+            return "null";
         }
         String uri = location.toString();
         if ("file".equals(location.getScheme())) {
@@ -214,10 +214,7 @@ public class SecurityLogger implements InitializingBean {
         String params(PullOp c) {
             return format(
                     "refSpecs=%s, depth=%s, author=%s, author email=%s",
-                    c.getRefSpecs(),
-                    c.getDepth(),
-                    c.getAuthor(),
-                    c.getAuthorEmail());
+                    c.getRefSpecs(), c.getDepth(), c.getAuthor(), c.getAuthorEmail());
         }
     }
 

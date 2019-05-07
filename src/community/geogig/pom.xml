@@ -275,6 +275,14 @@
       <version>${geogig.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.locationtech.geogig</groupId>
+      <artifactId>geogig-cli-geotools</artifactId>
+      <version>${geogig.version}</version>
+      <type>test-jar</type>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.geoserver</groupId>
       <artifactId>gs-main</artifactId>
       <version>${gs.version}</version>
@@ -337,6 +345,17 @@
       <artifactId>httpmime</artifactId>
       <version>4.5.5</version>
       <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.2.5</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
     </dependency>
   </dependencies>
 

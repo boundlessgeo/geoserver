@@ -19,10 +19,7 @@ import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -57,10 +54,10 @@ import org.locationtech.geogig.geotools.data.GeoGigDataStoreFactory;
 import org.locationtech.geogig.model.NodeRef;
 import org.locationtech.geogig.model.ObjectId;
 import org.locationtech.geogig.model.RevFeature;
-import org.locationtech.geogig.model.RevFeatureType;
-import org.locationtech.geogig.model.RevTree;
 import org.locationtech.geogig.model.RevFeatureBuilder;
+import org.locationtech.geogig.model.RevFeatureType;
 import org.locationtech.geogig.model.RevFeatureTypeBuilder;
+import org.locationtech.geogig.model.RevTree;
 import org.locationtech.geogig.plumbing.FindTreeChild;
 import org.locationtech.geogig.plumbing.ResolveGeogigURI;
 import org.locationtech.geogig.plumbing.RevObjectParse;
@@ -309,8 +306,7 @@ public class GeoGigTestData extends ExternalResource {
             RevFeatureType type = builder.build(null, feature.getType());
             geogig.getRepository().objectDatabase().put(type);
             String path = NodeRef.appendChild(parentTreePath, feature.getIdentifier().getID());
-            FeatureInfo info =
-                    FeatureInfo.insert(b.build(feature), type.getId(), path);
+            FeatureInfo info = FeatureInfo.insert(b.build(feature), type.getId(), path);
             workingTree.insert(info);
         }
         return this;
@@ -419,8 +415,7 @@ public class GeoGigTestData extends ExternalResource {
         Context context = geogig.getContext();
         WorkingTree workingTree = context.workingTree();
         RevFeatureType type = builder.build(null, featureType);
-        FeatureInfo info =
-                FeatureInfo.insert(b.build(feature), type.getId(), featurePath);
+        FeatureInfo info = FeatureInfo.insert(b.build(feature), type.getId(), featurePath);
         workingTree.insert(info);
         return this;
     }
@@ -452,8 +447,7 @@ public class GeoGigTestData extends ExternalResource {
                                         .setObjectId(featureRef.getObjectId()));
 
         String id = featureRef.name();
-        Feature feature =
-                new FeatureBuilder(builder.build(null, type)).build(id, revFeature.get());
+        Feature feature = new FeatureBuilder(builder.build(null, type)).build(id, revFeature.get());
         return (SimpleFeature) feature;
     }
 
@@ -618,7 +612,7 @@ public class GeoGigTestData extends ExternalResource {
             } catch (Exception e) {
                 throw Throwables.propagate(e);
             }
-            assertTrue(repositoryUrl.exists() && repositoryUrl.isDirectory());
+            //            assertTrue(repositoryUrl.exists() && repositoryUrl.isDirectory());
             // make sure the Repository is in the Repo Manager
             RepositoryInfo info = new RepositoryInfo();
             info.setLocation(geogig.getRepository().getLocation());

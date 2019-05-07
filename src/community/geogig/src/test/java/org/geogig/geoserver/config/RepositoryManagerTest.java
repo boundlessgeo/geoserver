@@ -156,7 +156,7 @@ public class RepositoryManagerTest extends GeoServerSystemTestSupport {
         } catch (IllegalArgumentException e) {
             // expected
             assertEquals(
-                    "No repository initializer found capable of handling this kind of URI: unknown://repo1",
+                    "No repository initializer found capable of handling this kind of URI: unknown",
                     e.getMessage());
         }
     }

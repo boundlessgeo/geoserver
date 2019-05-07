@@ -21,7 +21,7 @@ Feature: Tests Import Existing repo behavior when certain repository backends ba
     Then the response status should be '400'
     And the response ContentType should be "application/xml"
     And the xpath "/response/success/text()" equals "false"
-    And the xpath "/response/error/text()" contains "No repository initializer found capable of handling this kind of URI: file:/"
+    And the xpath "/response/error/text()" contains "No repository initializer found capable of handling this kind of URI: file"
 
   Scenario: Import of existing RocksDB repository fails with missing RocksDB resolver, JSON response
     Given There is an empty multirepo server
@@ -39,7 +39,7 @@ Feature: Tests Import Existing repo behavior when certain repository backends ba
     Then the response status should be '400'
     And the response ContentType should be "application/json"
     And the json object "response.success" equals "false"
-    And the json response "response.error" should contain "No repository initializer found capable of handling this kind of URI: file:/"
+    And the json response "response.error" should contain "No repository initializer found capable of handling this kind of URI: file"
 
   Scenario: Import of existing RocksDB repository fails with missing RocksDB and PostgreSQL resolvers
     Given There is an empty multirepo server
@@ -57,7 +57,7 @@ Feature: Tests Import Existing repo behavior when certain repository backends ba
     Then the response status should be '400'
     And the response ContentType should be "application/xml"
     And the xpath "/response/success/text()" equals "false"
-    And the xpath "/response/error/text()" contains "No repository initializer found capable of handling this kind of URI: file:/"
+    And the xpath "/response/error/text()" contains "No repository initializer found capable of handling this kind of URI: file"
 
   Scenario: Import of existing RocksDB repository fails with missing RocksDB and PostgreSQL resolvers, JSON response
     Given There is an empty multirepo server
@@ -75,7 +75,7 @@ Feature: Tests Import Existing repo behavior when certain repository backends ba
     Then the response status should be '400'
     And the response ContentType should be "application/json"
     And the json object "response.success" equals "false"
-    And the json response "response.error" should contain "No repository initializer found capable of handling this kind of URI: file:/"
+    And the json response "response.error" should contain "No repository initializer found capable of handling this kind of URI: file"
 
   Scenario: Import of PostgreSQL repository fails with missing PostgreSQL resolver
     Given There is an empty multirepo server
@@ -90,7 +90,7 @@ Feature: Tests Import Existing repo behavior when certain repository backends ba
     Then the response status should be '400'
     And the response ContentType should be "application/xml"
     And the xpath "/response/success/text()" equals "false"
-    And the xpath "/response/error/text()" contains "No repository initializer found capable of handling this kind of URI: postgresql:/"
+    And the xpath "/response/error/text()" contains "No repository initializer found capable of handling this kind of URI: postgresql"
 
   Scenario: Import of PostgreSQL repository fails with missing PostgreSQL resolver, JSON response
     Given There is an empty multirepo server
@@ -105,7 +105,7 @@ Feature: Tests Import Existing repo behavior when certain repository backends ba
     Then the response status should be '400'
     And the response ContentType should be "application/json"
     And the json object "response.success" equals "false"
-    And the json response "response.error" should contain "No repository initializer found capable of handling this kind of URI: postgresql:/"
+    And the json response "response.error" should contain "No repository initializer found capable of handling this kind of URI: postgresql"
 
   Scenario: Import of existing RocksDB repository passes with missing PostgreSQL resolver
     Given There is an empty multirepo server
