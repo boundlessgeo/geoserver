@@ -7,9 +7,9 @@ package org.geoserver.wfs.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Spliterator;
@@ -17,6 +17,7 @@ import java.util.Spliterators;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.StreamSupport;
+import org.checkerframework.checker.units.qual.K;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -28,7 +29,7 @@ import org.opengis.feature.Attribute;
 import org.opengis.feature.ComplexAttribute;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
-import org.opengis.feature.type.ComplexType;
+import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
@@ -93,13 +94,13 @@ class ComplexGeoJsonWriter {
     private void encodeFeatureCollection(FeatureIterator iterator) {
         while (iterator.hasNext()) {
             // encode the next feature
-            encodeFeature(iterator.next());
+            encodeFeature(iterator.next(), true);
             featuresCount++;
         }
     }
 
     /** Encode a feature in GeoJSON. */
-    protected void encodeFeature(Feature feature) {
+    protected void encodeFeature(Feature feature, boolean topLevelFeature) {
         // start the feature JSON object
         jsonWriter.object();
         jsonWriter.key("type").value("Feature");
@@ -116,11 +117,22 @@ class ComplexGeoJsonWriter {
         jsonWriter.key("@featureType").value(getSimplifiedTypeName(feature.getType().getName()));
         // encode object properties, we pass the geometry attribute to avoid duplicate encodings
         encodeProperties(geometryAttribute, feature.getType(), feature.getProperties());
-        // close the feature JSON object
-        jsonWriter.endObject();
         // close the properties JSON object
         jsonWriter.endObject();
+        writeExtraFeatureProperties(feature, topLevelFeature);
+        // close the feature JSON object
+        jsonWriter.endObject();
     }
+
+    /**
+     * Allows subclasses to write extra attributes after the "properties" section end. By default it
+     * does nothing.
+     *
+     * @param feature The feature being encoded
+     * @param topLevelfeature If the feature being encoded is top level in the GeoJSON output, or
+     *     nested inside another feature instead
+     */
+    protected void writeExtraFeatureProperties(Feature feature, boolean topLevelfeature) {}
 
     /**
      * Returns the simplified type name, e.g., if the name is BoreCollarType the method will return
@@ -185,31 +197,31 @@ class ComplexGeoJsonWriter {
     private void encodeProperties(
             Property geometryAttribute, PropertyType parentType, Collection<Property> properties) {
         // index all the feature available properties by their type
-        Map<PropertyType, List<Property>> index =
-                indexPropertiesByType(geometryAttribute, properties);
-        for (Map.Entry<PropertyType, List<Property>> entry : index.entrySet()) {
+        Map<PropertyDescriptor, List<Property>> index =
+                indexPropertiesByDescriptor(geometryAttribute, properties);
+        for (Map.Entry<PropertyDescriptor, List<Property>> entry : index.entrySet()) {
             // encode properties per type
             encodePropertiesByType(parentType, entry.getKey(), entry.getValue());
         }
     }
 
     /** Index the provided properties by their type, geometry property will be ignored. */
-    private Map<PropertyType, List<Property>> indexPropertiesByType(
+    private Map<PropertyDescriptor, List<Property>> indexPropertiesByDescriptor(
             Property geometryAttribute, Collection<Property> properties) {
-        Map<PropertyType, List<Property>> index = new HashMap<>();
+        Map<PropertyDescriptor, List<Property>> index = new LinkedHashMap<>();
         for (Property property : properties) {
             if (geometryAttribute != null && geometryAttribute.equals(property)) {
                 // ignore the geometry attribute that should have been encoded already
                 continue;
             }
             // update the index with the current property
-            List<Property> propertiesWithSameType = index.get(property.getType());
-            if (propertiesWithSameType == null) {
+            List<Property> propertiesWithSameDescriptor = index.get(property.getDescriptor());
+            if (propertiesWithSameDescriptor == null) {
                 // first time we see a property fo this type
-                propertiesWithSameType = new ArrayList<>();
-                index.put(property.getType(), propertiesWithSameType);
+                propertiesWithSameDescriptor = new ArrayList<>();
+                index.put(property.getDescriptor(), propertiesWithSameDescriptor);
             }
-            propertiesWithSameType.add(property);
+            propertiesWithSameDescriptor.add(property);
         }
         return index;
     }
@@ -219,43 +231,44 @@ class ComplexGeoJsonWriter {
      * properties should be encoded as a list or as elements that appear multiple times.
      */
     private void encodePropertiesByType(
-            PropertyType parentType, PropertyType type, List<Property> properties) {
-        PropertyDescriptor multipleType = isMultipleType(parentType, type);
-        if (multipleType == null) {
-            // simple JSON objects
-            properties.forEach(this::encodeProperty);
-        } else {
-            // possible chained features that need to be encoded as a list
-            List<Feature> chainedFeatures = getChainedFeatures(properties);
-            if (chainedFeatures == null || chainedFeatures.isEmpty()) {
-                // let's check if we are in the presence of linked features
-                List<Map<NameImpl, String>> linkedFeatures = getLinkedFeatures(properties);
-                if (!linkedFeatures.isEmpty()) {
-                    // encode linked features
-                    encodeLinkedFeatures(multipleType.getName().getLocalPart(), linkedFeatures);
-                } else {
-                    // no chained or linked features just encode each property
-                    properties.forEach(this::encodeProperty);
-                }
+            PropertyType parentType, PropertyDescriptor descriptor, List<Property> properties) {
+        // possible chained features that need to be encoded as a list
+        List<Feature> chainedFeatures = getChainedFeatures(properties);
+        if (chainedFeatures == null
+                || chainedFeatures.isEmpty()
+                || descriptor.getMaxOccurs() == 1) {
+            // let's check if we are in the presence of linked features
+            List<Map<NameImpl, String>> linkedFeatures = getLinkedFeatures(properties);
+            if (!linkedFeatures.isEmpty()) {
+                // encode linked features
+                encodeLinkedFeatures(descriptor, linkedFeatures);
             } else {
-                // chained features so we need to encode the chained features as an array
-                encodeChainedFeatures(multipleType.getName().getLocalPart(), chainedFeatures);
+                // no chained or linked features just encode each property
+                properties.forEach(this::encodeProperty);
             }
+        } else {
+            // chained features so we need to encode the chained features as an array
+            encodeChainedFeatures(descriptor.getName().getLocalPart(), chainedFeatures);
         }
     }
 
     /** Encodes linked features as a JSON array. */
     private void encodeLinkedFeatures(
-            String attributeName, List<Map<NameImpl, String>> linkedFeatures) {
+            PropertyDescriptor descriptor, List<Map<NameImpl, String>> linkedFeatures) {
         // start the JSON object
-        jsonWriter.key(attributeName);
-        jsonWriter.array();
+        jsonWriter.key(descriptor.getName().getLocalPart());
+        // is it multiple or single?
+        if (descriptor.getMaxOccurs() > 1) {
+            jsonWriter.array();
+        }
         // encode each linked feature
         for (Map<NameImpl, String> feature : linkedFeatures) {
             encodeAttributesAsObject(feature);
         }
-        // end the linked features JSON array
-        jsonWriter.endArray();
+        if (descriptor.getMaxOccurs() > 1) {
+            // end the linked features JSON array
+            jsonWriter.endArray();
+        }
     }
 
     /** Encodes a list of features (chained features) as a JSON array. */
@@ -267,7 +280,7 @@ class ComplexGeoJsonWriter {
             // if it's GeoJSON compatible, encode as a full blown GeoJSON feature (must have a
             // default geometry)
             if (feature.getType().getGeometryDescriptor() != null) {
-                encodeFeature(feature);
+                encodeFeature(feature, false);
             } else {
                 jsonWriter.object();
                 encodeProperties(null, feature.getType(), feature.getProperties());
@@ -276,32 +289,6 @@ class ComplexGeoJsonWriter {
         }
         // end the JSON chained features array
         jsonWriter.endArray();
-    }
-
-    /** Check if a property type should appear multiple times or be encoded as a list. */
-    private PropertyDescriptor isMultipleType(PropertyType parentType, PropertyType type) {
-        if (!(parentType instanceof ComplexType)) {
-            // only properties that belong to a complex type can be chained features
-            return null;
-        }
-        // search the current type on the parent properties
-        ComplexType complexType = (ComplexType) parentType;
-        PropertyDescriptor foundType = null;
-        for (PropertyDescriptor descriptor : complexType.getDescriptors()) {
-            if (descriptor.getType().equals(type)) {
-                // found our type
-                foundType = descriptor;
-            }
-        }
-        // if the found type can appear multiples time is not a chained feature
-        if (foundType == null) {
-            return null;
-        }
-        if (foundType.getMaxOccurs() > 1) {
-            // this type can appear more than once so it should not be encoded as a list
-            return foundType;
-        }
-        return null;
     }
 
     /**
@@ -402,9 +389,11 @@ class ComplexGeoJsonWriter {
             // check if we have a simple content
             ComplexAttribute complexAttribute = (ComplexAttribute) property;
 
-            Object simpleValue = getSimpleContent(complexAttribute);
-            if (simpleValue != null) {
-                encodeSimpleAttribute(attributeName, simpleValue, attributes);
+            if (isSimpleContent(complexAttribute.getType())) {
+                Object value = getSimpleContentValue(complexAttribute);
+                if (value != null || (attributes != null && !attributes.isEmpty())) {
+                    encodeSimpleAttribute(attributeName, value, attributes);
+                }
             } else {
                 // skip the property/element nesting found in GML, if possible
                 if (isGMLPropertyType(complexAttribute)) {
@@ -530,7 +519,24 @@ class ComplexGeoJsonWriter {
      * Helper method that try to extract a simple content from a complex attribute, NULL is returned
      * if no simple content is present.
      */
-    private Object getSimpleContent(ComplexAttribute property) {
+    private boolean isSimpleContent(AttributeType type) {
+        if ("http://www.w3.org/2001/XMLSchema".equals(type.getName().getNamespaceURI())
+                && type.getName().getLocalPart().equals("anySimpleType")) {
+            return true;
+        }
+
+        AttributeType superType = type.getSuper();
+        if (superType == null) {
+            return false;
+        }
+        return isSimpleContent(superType);
+    }
+
+    /**
+     * Helper method that try to extract a simple content from a complex attribute, NULL is returned
+     * if no simple content is present.
+     */
+    private Object getSimpleContentValue(ComplexAttribute property) {
         Collection<Property> properties = property.getProperties();
         if (properties.isEmpty() || properties.size() > 1) {
             // no properties or more than property mean no simple content
@@ -546,16 +552,7 @@ class ComplexGeoJsonWriter {
             // not a simple content node
             return null;
         }
-        Object value = simpleContent.getValue();
-        if (value instanceof Number
-                || value instanceof String
-                || value instanceof Character
-                || value instanceof Date) {
-            // the extract value is a simple Java type
-            return value;
-        }
-        // not a valid simple content type
-        return null;
+        return simpleContent.getValue();
     }
 
     /** Encode a complex attribute as a JSON object. */
@@ -563,7 +560,7 @@ class ComplexGeoJsonWriter {
             String name, ComplexAttribute attribute, Map<NameImpl, String> attributes) {
         if (isFullFeature(attribute)) {
             jsonWriter.key(name);
-            encodeFeature((Feature) attribute);
+            encodeFeature((Feature) attribute, false);
         } else {
             // get the attribute name and start a JSON object
             jsonWriter.key(name);
@@ -610,7 +607,9 @@ class ComplexGeoJsonWriter {
         }
         // we need to encode a list of attributes, let's first encode the main value
         jsonWriter.key(name).object();
-        jsonWriter.key("value").value(value);
+        if (value != null) {
+            jsonWriter.key("value").value(value);
+        }
         // encode the attributes list
         encodeAttributes(attributes);
         // close the values \ attributes object

@@ -5,8 +5,7 @@
  application directory.
  --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-  <parent>
+    <parent>
     <groupId>org.geoserver</groupId>
     <artifactId>geoserver</artifactId>
     <version>2.16-SNAPSHOT</version>
@@ -78,7 +77,7 @@
           <descriptor>release/ext-keycloak.xml</descriptor>
           <descriptor>release/ext-backup-restore.xml</descriptor>
           <descriptor>release/ext-wmts-multi-dimensional.xml</descriptor> 
-          <descriptor>release/ext-onelogin.xml</descriptor> 
+          <descriptor>release/ext-saml.xml</descriptor> 
           <descriptor>release/ext-notification.xml</descriptor>
           <descriptor>release/ext-ows-simulate.xml</descriptor> 
           <descriptor>release/ext-jdbc-metrics.xml</descriptor>
@@ -98,6 +97,7 @@
           <descriptor>release/ext-s3-geotiff.xml</descriptor>
           <descriptor>release/ext-wmts-styles.xml</descriptor>
           <descriptor>release/ext-ogr-datastore.xml</descriptor>
+          <descriptor>release/ext-ogcapi.xml</descriptor>
         </descriptors>
       </configuration>
      </plugin>
@@ -182,9 +182,9 @@
       </modules>
     </profile>
     <profile>
-      <id>onelogin</id>
+      <id>saml</id>
       <modules>
-        <module>onelogin</module>
+        <module>saml</module>
       </modules>
     </profile>
 	<profile>
@@ -250,7 +250,7 @@
         <module>security/keycloak</module>
         <module>wmts-multi-dimensional</module>
         <module>wmts-styles</module>
-        <module>onelogin</module>
+        <module>saml</module>
         <module>notification</module>
         <module>notification-common</module>
         <module>notification-geonode</module>
@@ -268,6 +268,7 @@
         <module>qos</module>
         <module>mapml</module>
         <module>web-ogr</module>
+        <module>ogcapi</module>
       </modules>
     </profile>
     <profile>
@@ -321,7 +322,13 @@
       <modules>
         <module>wms-eo</module>
       </modules>
-    </profile>	
+    </profile>
+    <profile>
+      <id>importer-fgdb</id>
+      <modules>
+        <module>importer-fgdb</module>
+      </modules>
+    </profile>
     <profile>
       <id>geopkg</id>
       <modules>
@@ -615,6 +622,12 @@
       <id>web-ogr</id>
       <modules>
         <module>web-ogr</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>ogcapi</id>
+      <modules>
+        <module>ogcapi</module>
       </modules>
     </profile>
   </profiles>  

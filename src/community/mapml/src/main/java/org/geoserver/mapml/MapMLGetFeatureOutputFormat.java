@@ -1,4 +1,4 @@
-/* (c) 2016 Open Source Geospatial Foundation - all rights reserved
+/* (c) 2019 Open Source Geospatial Foundation - all rights reserved
  * This code is licensed under the GPL 2.0 license, available at the root
  * application directory.
  */
@@ -47,7 +47,7 @@ public class MapMLGetFeatureOutputFormat extends WFSGetFeatureOutputFormat {
 
     @Override
     public String getMimeType(Object value, Operation operation) throws ServiceException {
-        return MapMLConstants.MIME_TYPE;
+        return MapMLConstants.MAPML_MIME_TYPE;
     }
 
     @Override
@@ -89,7 +89,7 @@ public class MapMLGetFeatureOutputFormat extends WFSGetFeatureOutputFormat {
         metas.add(meta);
         meta = new Meta();
         meta.setHttpEquiv("Content-Type");
-        meta.setContent(MapMLConstants.MIME_TYPE); // ;projection=" + projType.value());
+        meta.setContent(MapMLConstants.MAPML_MIME_TYPE); // ;projection=" + projType.value());
         metas.add(meta);
         List<Link> links = head.getLinks();
 

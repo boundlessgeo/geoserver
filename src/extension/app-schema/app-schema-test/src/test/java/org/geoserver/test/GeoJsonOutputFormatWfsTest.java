@@ -8,6 +8,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import net.sf.json.JSON;
@@ -79,7 +80,6 @@ public final class GeoJsonOutputFormatWfsTest extends AbstractAppSchemaTestSuppo
                 getAsJSON(
                         "wfs?request=GetFeature&version=1.1.0"
                                 + "&typename=st_gml31:Station_gml31&outputFormat=application/json");
-        print(response);
         // validate the obtained response
         checkStation1Exists(response);
     }
@@ -93,6 +93,24 @@ public final class GeoJsonOutputFormatWfsTest extends AbstractAppSchemaTestSuppo
                                 + "&typenames=st_gml32:Station_gml32&outputFormat=application/json");
         // validate the obtained response
         checkStation1Exists(response);
+        // check complex types with simple content that miss their value do not get a datatype
+        JSONObject station = getFeaturePropertiesById(response, "st.2");
+        assertThat(station, notNullValue());
+        JSONObject contact = station.getJSONObject("contact");
+        assertThat(contact.size(), is(3));
+        assertThat(contact.get("@mail"), is("st2@stations.org"));
+        JSONObject phone = contact.getJSONObject("phone");
+        assertThat(phone.size(), is(1));
+        assertFalse(phone.has("value"));
+        assertThat(phone.get("@timeZone"), is(""));
+        // check the linked features have been kept separate despite the shared element type
+        // A and B have max multiplicity > 1, C is ensured to be single
+        JSONObject featureLinkA = station.getJSONArray("featureLinkA").getJSONObject(0);
+        assertEquals("http://www.geoserver.org/featureA", featureLinkA.getString("@href"));
+        JSONObject featureLinkB = station.getJSONArray("featureLinkB").getJSONObject(0);
+        assertEquals("http://www.geoserver.org/featureB", featureLinkB.getString("@href"));
+        JSONObject featureLinkC = station.getJSONObject("featureLinkC");
+        assertEquals("http://www.geoserver.org/featureC", featureLinkC.getString("@href"));
     }
 
     /** Helper method that station 1 exists and was correctly encoded in the GeoJSON response. */
@@ -128,7 +146,6 @@ public final class GeoJsonOutputFormatWfsTest extends AbstractAppSchemaTestSuppo
     public void testSimpleContentTimeEncoding() throws Exception {
         String path = "wfs?request=GetFeature&typename=gsmlbh:Borehole&outputFormat=json";
         JSON json = getAsJSON(path);
-        print(json);
         JSONObject properties = getFeaturePropertiesById(json, "borehole.GA.17322");
         assertThat(properties, is(notNullValue()));
         JSONObject timeInstant =
@@ -150,7 +167,6 @@ public final class GeoJsonOutputFormatWfsTest extends AbstractAppSchemaTestSuppo
     public void testOneDimensionalEncoding() throws Exception {
         String path = "wfs?request=GetFeature&typename=gsmlbh:Borehole&outputFormat=json";
         JSON json = getAsJSON(path);
-        print(json);
         JSONObject properties = getFeaturePropertiesById(json, "borehole.GA.17322");
         assertThat(properties, is(notNullValue()));
         JSONObject samplingLocation =
@@ -170,7 +186,6 @@ public final class GeoJsonOutputFormatWfsTest extends AbstractAppSchemaTestSuppo
     public void testNestedFeatureEncoding() throws Exception {
         String path = "wfs?request=GetFeature&typename=gsml:Borehole&outputFormat=json";
         JSON json = getAsJSON(path);
-        print(json);
         JSONObject properties = getFeaturePropertiesById(json, "BOREHOLE.WTB5");
         assertThat(properties, is(notNullValue()));
 
