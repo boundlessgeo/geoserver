@@ -42,7 +42,6 @@ import org.geoserver.web.data.store.StoreEditPanel;
 import org.geoserver.web.data.store.panel.CheckBoxParamPanel;
 import org.geoserver.web.data.store.panel.TextParamPanel;
 import org.geoserver.web.util.MapModel;
-import org.locationtech.geogig.repository.RepositoryResolver;
 
 public class GeoGigDataStoreEditPanel extends StoreEditPanel {
 
@@ -273,12 +272,12 @@ public class GeoGigDataStoreEditPanel extends StoreEditPanel {
 
     private static class RepoInfoChoiceRenderer extends ChoiceRenderer<String> {
         private static final long serialVersionUID = -7350304450283044479L;
+        private static GeoServerGeoGigRepositoryResolver resolver = new GeoServerGeoGigRepositoryResolver();
 
         @Override
         public Object getDisplayValue(String repoUriStr) {
             try {
                 URI repoUri = new URI(repoUriStr);
-                RepositoryResolver resolver = RepositoryResolver.lookup(repoUri);
                 RepositoryInfo info =
                         RepositoryManager.get().getByRepoName(resolver.getName(repoUri));
                 return info.getRepoName() + " (" + info.getMaskedLocation() + ")";

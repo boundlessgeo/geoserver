@@ -35,6 +35,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 /** Integration test suite with GeoServer's REST API */
 public class GeoGigGeoServerRESTntegrationTest extends CatalogRESTTestSupport {
 
+    private static GeoServerGeoGigRepositoryResolver geogigResolver = new GeoServerGeoGigRepositoryResolver();
+
     @Rule public GeoGigTestData geogigData = new GeoGigTestData();
 
     @Override
@@ -86,7 +88,7 @@ public class GeoGigGeoServerRESTntegrationTest extends CatalogRESTTestSupport {
         assertNotNull(repository);
         // get a resolver to get the ID
         URI repoURI = new URI(repository);
-        RepositoryResolver resolver = RepositoryResolver.lookup(repoURI);
+        RepositoryResolver resolver = geogigResolver.lookup(repoURI);
         assertTrue(
                 String.format(
                         "Expected GeoGig DataStoreInfo to containg a '%s' URI value with scheme '%s'",

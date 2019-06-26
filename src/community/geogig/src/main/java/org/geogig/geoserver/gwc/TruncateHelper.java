@@ -4,7 +4,7 @@
  */
 package org.geogig.geoserver.gwc;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
 import java.util.Collections;
@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.gwc.layer.GeoServerTileLayer;
@@ -58,7 +60,7 @@ class TruncateHelper {
         final ObjectId newCommit = newRef.isPresent() ? newRef.get().getObjectId() : ObjectId.NULL;
 
         final String tileLayerName = tileLayer.getName();
-        final String layerTreeName = tileLayer.getLayerInfo().getResource().getNativeName();
+        final String layerTreeName = tileLayer.getInfo().getName();
 
         LOGGER.debug(
                 String.format(
@@ -99,7 +101,9 @@ class TruncateHelper {
         }
         final Set<String> gridSubsets = tileLayer.getGridSubsets();
 
-        LayerInfo layerInfo = tileLayer.getLayerInfo();
+        Catalog c = tileLayer.getResourceInfo().getCatalog();
+
+        LayerInfo layerInfo = c.getLayer(tileLayer.getInfo().getId());
         ResourceInfo resource = layerInfo.getResource();
         final CoordinateReferenceSystem sourceCrs;
         {

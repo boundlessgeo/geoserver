@@ -13,6 +13,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
+import org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver;
 import org.geogig.geoserver.config.RepositoryInfo;
 import org.geogig.geoserver.config.RepositoryManager;
 import org.geogig.geoserver.util.PostgresConnectionErrorHandler;
@@ -21,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RepositoryEditPanel extends FormComponentPanel<RepositoryInfo> {
+
+    private static GeoServerGeoGigRepositoryResolver geogigResolver = new GeoServerGeoGigRepositoryResolver();
 
     private static final long serialVersionUID = -870873448379832051L;
     private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryEditPanel.class);
@@ -48,7 +51,7 @@ public class RepositoryEditPanel extends FormComponentPanel<RepositoryInfo> {
                         ValidationError error = new ValidationError();
                         RepositoryInfo repo = validatable.getValue();
                         final URI location = repo.getLocation();
-                        final RepositoryResolver resolver = RepositoryResolver.lookup(location);
+                        final RepositoryResolver resolver = geogigResolver.lookup(location);
                         final String scheme = location.getScheme();
                         final boolean nameExists =
                                 RepositoryManager.get().repoExistsByName(repo.getRepoName());

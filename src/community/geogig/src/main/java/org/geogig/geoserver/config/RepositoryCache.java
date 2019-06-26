@@ -26,6 +26,8 @@ class RepositoryCache {
 
     private static final Logger LOGGER = Logging.getLogger(RepositoryCache.class);
 
+    private static GeoServerGeoGigRepositoryResolver resolver = new GeoServerGeoGigRepositoryResolver();
+
     private final LoadingCache<String, Repository> repoCache;
 
     public RepositoryCache(final RepositoryManager repoManager) {
@@ -70,7 +72,7 @@ class RepositoryCache {
                             RepositoryInfo repoInfo = manager.get(repoId);
                             URI repoLocation = repoInfo.getLocation();
                             // RepositoryResolver.load returns an open repository or fails
-                            Repository repo = RepositoryResolver.load(repoLocation);
+                            Repository repo = resolver.load(repoLocation);
                             checkState(repo.isOpen());
 
                             return repo;

@@ -7,7 +7,7 @@ package org.geogig.geoserver.rest;
 import static org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver.getURI;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterators;
@@ -17,6 +17,8 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver;
 import org.geogig.geoserver.config.RepositoryInfo;
 import org.geogig.geoserver.config.RepositoryManager;
 import org.locationtech.geogig.plumbing.ResolveGeogigURI;
@@ -35,6 +37,8 @@ import org.springframework.http.HttpStatus;
  * {@link HttpServletRequest} by asking the geoserver's {@link RepositoryManager}
  */
 public class GeoServerRepositoryProvider implements RepositoryProvider {
+
+    private static GeoServerGeoGigRepositoryResolver resolver = new GeoServerGeoGigRepositoryResolver();
 
     /** Init request command string. */
     public static final String INIT_CMD = "init";
@@ -129,7 +133,7 @@ public class GeoServerRepositoryProvider implements RepositoryProvider {
 
     public Optional<Repository> getGeogig(String repositoryName) {
         Repository geogig = findRepository(repositoryName);
-        return Optional.fromNullable(geogig);
+        return Optional.ofNullable(geogig);
     }
 
     private Repository findRepository(String repositoryName) {
@@ -157,11 +161,11 @@ public class GeoServerRepositoryProvider implements RepositoryProvider {
                 final Hints hints =
                         InitRequestUtil.createHintsFromParameters(repositoryName, parameters);
                 final Repository repository = RepositoryManager.get().createRepo(hints);
-                return Optional.fromNullable(repository);
+                return Optional.ofNullable(repository);
             } catch (Exception ex) {
                 Throwables.propagate(ex);
             }
-            return Optional.absent();
+            return Optional.empty();
         }
 
         private static Optional<Repository> importGeogig(
@@ -177,15 +181,15 @@ public class GeoServerRepositoryProvider implements RepositoryProvider {
 
                 // set the repo location from the URI
                 if (!hints.get(Hints.REPOSITORY_URL).isPresent()) {
-                    return Optional.absent();
+                    return Optional.empty();
                 }
                 URI uri = new URI(hints.get(Hints.REPOSITORY_URL).get().toString());
                 repoInfo.setLocation(uri);
 
                 // check to see if repo is initialized
-                RepositoryResolver repoResolver = RepositoryResolver.lookup(uri);
+                RepositoryResolver repoResolver = resolver.lookup(uri);
                 if (!repoResolver.repoExists(uri)) {
-                    return Optional.absent();
+                    return Optional.empty();
                 }
 
                 // save the repo, this will set a UUID
@@ -197,7 +201,7 @@ public class GeoServerRepositoryProvider implements RepositoryProvider {
             } catch (RepositoryConnectionException e) {
                 e.printStackTrace();
             }
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 

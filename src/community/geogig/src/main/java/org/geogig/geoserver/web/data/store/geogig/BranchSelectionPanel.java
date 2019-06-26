@@ -19,13 +19,14 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponentPanel;
 import org.apache.wicket.model.IModel;
+import org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver;
 import org.geogig.geoserver.config.RepositoryInfo;
 import org.geogig.geoserver.config.RepositoryManager;
 import org.geoserver.catalog.DataStoreInfo;
 import org.locationtech.geogig.model.Ref;
-import org.locationtech.geogig.repository.RepositoryResolver;
 
 public class BranchSelectionPanel extends FormComponentPanel<String> {
+    private static GeoServerGeoGigRepositoryResolver resolver = new GeoServerGeoGigRepositoryResolver();
     private static final long serialVersionUID = 1L;
 
     private final DropDownChoice<String> choice;
@@ -91,7 +92,6 @@ public class BranchSelectionPanel extends FormComponentPanel<String> {
             try {
                 RepositoryManager manager = this.manager.get();
                 URI repoURI = new URI(repoUriStr);
-                RepositoryResolver resolver = RepositoryResolver.lookup(repoURI);
                 String repoName = resolver.getName(repoURI);
                 RepositoryInfo repoInfo = manager.getByRepoName(repoName);
                 if (repoInfo != null) {

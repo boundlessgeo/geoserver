@@ -4,10 +4,12 @@
  */
 package org.geogig.geoserver.spring.service;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import java.net.URI;
 import java.util.Map;
+
+import org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver;
 import org.geogig.geoserver.rest.GeoServerRepositoryProvider;
 import org.geogig.geoserver.spring.dto.RepositoryImportRepo;
 import org.locationtech.geogig.plumbing.ResolveGeogigURI;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Service;
 /** Internal service for importing a repository. */
 @Service("importRepoService")
 public class ImportRepoService {
+
+    private static GeoServerGeoGigRepositoryResolver resolver = new GeoServerGeoGigRepositoryResolver();
 
     public RepositoryImportRepo importRepository(
             RepositoryProvider provider, String repositoryName, Map<String, String> parameters)
@@ -49,7 +53,7 @@ public class ImportRepoService {
                 repoUri.isPresent(), "Unable to resolve URI of imported repository.");
 
         final String repoName =
-                RepositoryResolver.load(repoUri.get()).command(ResolveRepositoryName.class).call();
+                resolver.load(repoUri.get()).command(ResolveRepositoryName.class).call();
         RepositoryImportRepo info = new RepositoryImportRepo();
         info.setName(repoName);
         // set the Web API Atom Link, not the repository URI link

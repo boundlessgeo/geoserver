@@ -7,20 +7,20 @@ package org.geogig.geoserver.spring.service;
 import static org.locationtech.geogig.porcelain.ConfigOp.ConfigAction.CONFIG_SET;
 import static org.locationtech.geogig.porcelain.ConfigOp.ConfigScope.LOCAL;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.net.URI;
 import java.util.Map;
+
+import org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver;
 import org.geogig.geoserver.config.RepositoryInfo;
 import org.geogig.geoserver.config.RepositoryManager;
 import org.locationtech.geogig.plumbing.ResolveGeogigURI;
-import org.locationtech.geogig.plumbing.ResolveRepositoryName;
 import org.locationtech.geogig.porcelain.ConfigOp;
 import org.locationtech.geogig.porcelain.InitOp;
 import org.locationtech.geogig.repository.Repository;
 import org.locationtech.geogig.repository.RepositoryConnectionException;
-import org.locationtech.geogig.repository.RepositoryResolver;
 import org.locationtech.geogig.rest.repository.RepositoryProvider;
 import org.locationtech.geogig.spring.dto.InitRequest;
 import org.locationtech.geogig.spring.dto.RepositoryInitRepo;
@@ -32,6 +32,8 @@ import org.springframework.stereotype.Service;
 /** Replace the default {@link RepositoryInitService} with one that saves the repository info. */
 @Service("repositoryInitService")
 public class GeoserverRepositoryInitService extends RepositoryInitService {
+
+    private static GeoServerGeoGigRepositoryResolver resolver = new GeoServerGeoGigRepositoryResolver();
 
     @Override
     public RepositoryInitRepo initRepository(
@@ -74,8 +76,8 @@ public class GeoserverRepositoryInitService extends RepositoryInitService {
         Preconditions.checkState(
                 repoUri.isPresent(), "Unable to resolve URI of newly created repository.");
 
-        final String repoName =
-                RepositoryResolver.load(repoUri.get()).command(ResolveRepositoryName.class).call();
+        final String repoName = resolver.getName(repoUri.get());
+
         RepositoryInitRepo info = new RepositoryInitRepo();
         info.setName(repoName);
         // set the Web API Atom Link, not the repository URI link

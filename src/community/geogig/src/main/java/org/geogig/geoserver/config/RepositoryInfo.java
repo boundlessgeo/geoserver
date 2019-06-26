@@ -16,6 +16,8 @@ import org.locationtech.geogig.repository.RepositoryResolver;
 
 public class RepositoryInfo implements Serializable, Cloneable {
 
+    private static GeoServerGeoGigRepositoryResolver geogigResolver = new GeoServerGeoGigRepositoryResolver();
+
     private static final long serialVersionUID = -5946705936987075713L;
 
     private String id;
@@ -117,8 +119,8 @@ public class RepositoryInfo implements Serializable, Cloneable {
         if (this.location != null) {
             if (this.repoName == null) {
                 // lookup the resolver
-                if (RepositoryResolver.resolverAvailableForURIScheme(this.location.getScheme())) {
-                    RepositoryResolver resolver = RepositoryResolver.lookup(this.location);
+                if (geogigResolver.canHandleURIScheme(this.location.getScheme())) {
+                    RepositoryResolver resolver = geogigResolver.lookup(this.location);
                     this.repoName = resolver.getName(this.location);
                 }
             }

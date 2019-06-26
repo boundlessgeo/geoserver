@@ -18,6 +18,8 @@ import org.geoserver.web.GeoServerSecuredPage;
 /** */
 public class RemotesPage extends GeoServerSecuredPage {
 
+    private static final long serialVersionUID = -5946705936987075713L;
+
     private ModalWindow window;
 
     public RemotesPage() {

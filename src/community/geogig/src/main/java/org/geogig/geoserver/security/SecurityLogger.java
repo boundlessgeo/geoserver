@@ -248,7 +248,7 @@ public class SecurityLogger implements InitializingBean {
         String params(FetchOp c) {
             return format(
                     "remotes=%s, all=%s, full depth=%s, depth=%s, prune=%s",
-                    c.getRemoteNames(), c.isAll(), c.isFullDepth(), c.getDepth(), c.isPrune());
+                    c.getRemoteNames(), c.isAllRemotes(), c.isFullDepth(), c.getDepth(), c.isPrune());
         }
     }
 
@@ -262,7 +262,7 @@ public class SecurityLogger implements InitializingBean {
         String params(CloneOp c) {
             return format(
                     "url=%s, branch=%s, depth=%s",
-                    c.getRemoteURI(), c.getBranch().orNull(), c.getDepth().orNull());
+                    c.getRemoteURI(), c.getBranch().get(), c.getDepth().get());
         }
     }
 

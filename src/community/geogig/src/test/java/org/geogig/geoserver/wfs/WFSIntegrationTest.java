@@ -9,7 +9,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.Serializable;
@@ -33,7 +33,9 @@ import org.geotools.data.FeatureSource;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
 import org.locationtech.geogig.cli.test.functional.CLITestContextBuilder;
 import org.locationtech.geogig.geotools.data.GeoGigDataStore;
@@ -46,6 +48,7 @@ import org.locationtech.geogig.plumbing.ResolveGeogigURI;
 import org.locationtech.geogig.porcelain.CommitOp;
 import org.locationtech.geogig.porcelain.LogOp;
 import org.locationtech.geogig.repository.Context;
+import org.locationtech.geogig.repository.Repository;
 import org.locationtech.geogig.repository.impl.GeoGIG;
 import org.locationtech.geogig.repository.impl.GlobalContextBuilder;
 import org.locationtech.geogig.test.TestPlatform;
@@ -67,25 +70,32 @@ public class WFSIntegrationTest extends WFSTestSupport {
     private static TestHelper helper;
 
     private static class TestHelper extends RepositoryTestCase {
+        @Rule
+        public TemporaryFolder tmp = new TemporaryFolder();
+//        @Override
+//        protected Context createInjector() {
+//            TestPlatform testPlatform = (TestPlatform) createPlatform();
+//            GlobalContextBuilder.builder(new CLITestContextBuilder(testPlatform));
+//            return GlobalContextBuilder.builder().build();
+//        }
+
         @Override
-        protected Context createInjector() {
-            TestPlatform testPlatform = (TestPlatform) createPlatform();
+        protected void setUpInternal() throws Exception {
+            File workingDirectory = tmp.getRoot();
+            tmp.newFolder(".geogig");
+            TestPlatform testPlatform = new TestPlatform(workingDirectory);
             GlobalContextBuilder.builder(new CLITestContextBuilder(testPlatform));
-            return GlobalContextBuilder.builder().build();
         }
 
-        @Override
-        protected void setUpInternal() throws Exception {}
-
-        File getRepositoryDirectory() {
-            return super.repositoryDirectory;
-        }
+//        File getRepositoryDirectory() {
+//            return super.repositoryDirectory;
+//        }
     }
 
     @Override
     protected void setUpInternal(SystemTestData testData) throws Exception {
         helper = new TestHelper();
-        helper.repositoryTempFolder.create();
+        helper.tmp.create();
         helper.setUp();
         configureGeogigDataStore();
     }
@@ -94,7 +104,7 @@ public class WFSIntegrationTest extends WFSTestSupport {
     protected void onTearDown(SystemTestData testData) throws Exception {
         if (helper != null) {
             helper.tearDown();
-            helper.repositoryTempFolder.delete();
+            helper.tmp.delete();
         }
     }
 
@@ -113,7 +123,7 @@ public class WFSIntegrationTest extends WFSTestSupport {
     private void configureGeogigDataStore() throws Exception {
 
         helper.insertAndAdd(helper.lines1);
-        helper.getGeogig().command(CommitOp.class).call();
+        helper.getRepository().command(CommitOp.class).call();
 
         Catalog catalog = getCatalog();
         CatalogFactory factory = catalog.getFactory();
@@ -133,7 +143,7 @@ public class WFSIntegrationTest extends WFSTestSupport {
         ds.setWorkspace(ws);
         Map<String, Serializable> connParams = ds.getConnectionParameters();
 
-        Optional<URI> geogigDir = helper.getGeogig().command(ResolveGeogigURI.class).call();
+        Optional<URI> geogigDir = helper.getRepository().command(ResolveGeogigURI.class).call();
         File repositoryUrl = new File(geogigDir.get()).getParentFile();
         assertTrue(repositoryUrl.exists() && repositoryUrl.isDirectory());
 
@@ -297,9 +307,9 @@ public class WFSIntegrationTest extends WFSTestSupport {
                         + "</wfs:Insert>" //
                         + "</wfs:Transaction>";
 
-        GeoGIG geogig = helper.getGeogig();
+        Repository repo = helper.getRepository();
         final NodeRef initialTypeTreeRef =
-                geogig.command(FindTreeChild.class).setChildPath("Lines").call().get();
+                repo.command(FindTreeChild.class).setChildPath("Lines").call().get();
         assertFalse(initialTypeTreeRef.getMetadataId().isNull());
 
         Document dom = postAsDOM("wfs", xml);
@@ -322,7 +332,7 @@ public class WFSIntegrationTest extends WFSTestSupport {
         }
 
         final NodeRef finalTypeTreeRef =
-                geogig.command(FindTreeChild.class).setChildPath("Lines").call().get();
+                repo.command(FindTreeChild.class).setChildPath("Lines").call().get();
         assertFalse(initialTypeTreeRef.equals(finalTypeTreeRef));
         assertFalse(finalTypeTreeRef.getMetadataId().isNull());
 
@@ -331,7 +341,7 @@ public class WFSIntegrationTest extends WFSTestSupport {
                 initialTypeTreeRef.getMetadataId(),
                 finalTypeTreeRef.getMetadataId());
 
-        Iterator<NodeRef> featureRefs = geogig.command(LsTreeOp.class).setReference("Lines").call();
+        Iterator<NodeRef> featureRefs = repo.command(LsTreeOp.class).setReference("Lines").call();
         while (featureRefs.hasNext()) {
             NodeRef ref = featureRefs.next();
             assertEquals(finalTypeTreeRef.getMetadataId(), ref.getMetadataId());
@@ -373,9 +383,9 @@ public class WFSIntegrationTest extends WFSTestSupport {
                         + " </wfs:Update>" //
                         + "</wfs:Transaction>";
 
-        GeoGIG geogig = helper.getGeogig();
+        Repository repo = helper.getRepository();
         final NodeRef initialTypeTreeRef =
-                geogig.command(FindTreeChild.class).setChildPath("Lines").call().get();
+                repo.command(FindTreeChild.class).setChildPath("Lines").call().get();
         assertFalse(initialTypeTreeRef.getMetadataId().isNull());
 
         Document dom = postAsDOM("wfs", xml);
@@ -386,7 +396,7 @@ public class WFSIntegrationTest extends WFSTestSupport {
                 getFirstElementByTagName(dom, "wfs:totalUpdated").getFirstChild().getNodeValue());
 
         final NodeRef finalTypeTreeRef =
-                geogig.command(FindTreeChild.class).setChildPath("Lines").call().get();
+                repo.command(FindTreeChild.class).setChildPath("Lines").call().get();
         assertFalse(initialTypeTreeRef.equals(finalTypeTreeRef));
         assertFalse(finalTypeTreeRef.getMetadataId().isNull());
 
@@ -394,7 +404,7 @@ public class WFSIntegrationTest extends WFSTestSupport {
                 "Feature type tree metadataId shouuldn't change upon edits",
                 initialTypeTreeRef.getMetadataId(),
                 finalTypeTreeRef.getMetadataId());
-        Iterator<NodeRef> featureRefs = geogig.command(LsTreeOp.class).setReference("Lines").call();
+        Iterator<NodeRef> featureRefs = repo.command(LsTreeOp.class).setReference("Lines").call();
         while (featureRefs.hasNext()) {
             NodeRef ref = featureRefs.next();
             assertEquals(finalTypeTreeRef.getMetadataId(), ref.getMetadataId());
@@ -407,14 +417,14 @@ public class WFSIntegrationTest extends WFSTestSupport {
     // want to use TestSetupFrequency.ONCE
     @Test
     public void zz_testCommitsSurviveShutDown() throws Exception {
-        GeoGIG geogig = helper.getGeogig();
+        Repository repo = helper.getRepository();
 
         insert();
         update();
 
-        List<RevCommit> expected = ImmutableList.copyOf(geogig.command(LogOp.class).call());
+        List<RevCommit> expected = ImmutableList.copyOf(repo.command(LogOp.class).call());
 
-        File repoDir = helper.getRepositoryDirectory();
+        File repoDir = helper.tmp.getRoot();
         assertTrue(repoDir.exists() && repoDir.isDirectory());
         // shut down server
         destroyGeoServer();

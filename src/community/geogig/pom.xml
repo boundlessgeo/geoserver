@@ -15,12 +15,13 @@
   <name>GeoGig GeoServer integration</name>
 
   <properties>
-    <geogig.version>1.4-SNAPSHOT</geogig.version>
+    <geogig.version>2.0-SNAPSHOT</geogig.version>
     <jline.version>2.12</jline.version>
-    <mockito.version>2.23.0</mockito.version>
+    <mockito.version>2.27.0</mockito.version>
     <logback.version>1.1.2</logback.version>
     <cucumber-java.version>1.2.4</cucumber-java.version>
     <hikaricp.version>2.4.2</hikaricp.version>
+    <lombok.version>1.18.8</lombok.version>
   </properties>
 
   <repositories>
@@ -52,12 +53,12 @@
     </dependency>
     <dependency>
       <groupId>org.locationtech.geogig</groupId>
-      <artifactId>geogig-geotools</artifactId>
+      <artifactId>geogig-gt-commands</artifactId>
       <version>${geogig.version}</version>
     </dependency>
     <dependency>
       <groupId>org.locationtech.geogig</groupId>
-      <artifactId>geogig-datastore</artifactId>
+      <artifactId>geogig-gt-datastore</artifactId>
       <version>${geogig.version}</version>
     </dependency>
     <dependency>
@@ -177,6 +178,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
       <scope>test</scope>
@@ -223,7 +231,7 @@
     </dependency>
     <dependency>
       <groupId>org.locationtech.geogig</groupId>
-      <artifactId>geogig-geotools</artifactId>
+      <artifactId>geogig-gt-commands</artifactId>
       <version>${geogig.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
@@ -258,7 +266,7 @@
     </dependency>
     <dependency>
       <groupId>org.locationtech.geogig</groupId>
-      <artifactId>geogig-cli</artifactId>
+      <artifactId>geogig-cli-core</artifactId>
       <version>${geogig.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
@@ -269,11 +277,11 @@
     <classifier>tests</classifier>
     <scope>test</scope>
   </dependency>
-    <dependency>
-      <groupId>org.locationtech.geogig</groupId>
-      <artifactId>geogig-scripting</artifactId>
-      <version>${geogig.version}</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.locationtech.geogig</groupId>-->
+<!--      <artifactId>geogig-scripting</artifactId>-->
+<!--      <version>${geogig.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.locationtech.geogig</groupId>
       <artifactId>geogig-cli-geotools</artifactId>

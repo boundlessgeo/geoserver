@@ -370,7 +370,7 @@ public class GeoServerTileLayer extends TileLayer implements ProxyLayer {
         return publishedInfo;
     }
 
-    private ResourceInfo getResourceInfo() {
+    public ResourceInfo getResourceInfo() {
         return getPublishedInfo() instanceof LayerInfo
                 ? ((LayerInfo) getPublishedInfo()).getResource()
                 : null;

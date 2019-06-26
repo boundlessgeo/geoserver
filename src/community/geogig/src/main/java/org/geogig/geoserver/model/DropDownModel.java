@@ -10,14 +10,16 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.model.IModel;
+import org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver;
 import org.geogig.geoserver.config.RepositoryInfo;
-import org.locationtech.geogig.repository.RepositoryResolver;
 
 /**
  * Data model for the drop-down choice for GeoGig repository configuration. Currently, either a
  * Directory backend or a PostgreSQL backend are supported.
  */
 public class DropDownModel implements IModel<Serializable> {
+
+    private static GeoServerGeoGigRepositoryResolver resolver = new GeoServerGeoGigRepositoryResolver();
 
     private static final long serialVersionUID = 1L;
     static final String NO_DEFAULT_AVAILABLE = "No available repository types";
@@ -28,10 +30,10 @@ public class DropDownModel implements IModel<Serializable> {
     public static final List<String> CONFIG_LIST = new ArrayList<>(2);
 
     static {
-        if (RepositoryResolver.resolverAvailableForURIScheme("file")) {
+        if (resolver.canHandleURIScheme("file")) {
             CONFIG_LIST.add(DIRECTORY_CONFIG);
         }
-        if (RepositoryResolver.resolverAvailableForURIScheme("postgresql")) {
+        if (resolver.canHandleURIScheme("postgresql")) {
             CONFIG_LIST.add(PG_CONFIG);
         }
         if (!CONFIG_LIST.isEmpty()) {

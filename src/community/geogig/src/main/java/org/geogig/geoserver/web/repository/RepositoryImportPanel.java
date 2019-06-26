@@ -30,10 +30,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
-import org.geogig.geoserver.config.ImportRepositoryFormBean;
-import org.geogig.geoserver.config.PostgresConfigBean;
-import org.geogig.geoserver.config.RepositoryInfo;
-import org.geogig.geoserver.config.RepositoryManager;
+import org.geogig.geoserver.config.*;
 import org.geogig.geoserver.model.DropDownModel;
 import org.geogig.geoserver.model.ImportRepositoryFormModel;
 import org.geogig.geoserver.util.PostgresConnectionErrorHandler;
@@ -54,6 +51,8 @@ import org.slf4j.LoggerFactory;
  * ImportRepositoryFormBean}.
  */
 public class RepositoryImportPanel extends FormComponentPanel<RepositoryInfo> {
+
+    private static GeoServerGeoGigRepositoryResolver geogigResolver = new GeoServerGeoGigRepositoryResolver();
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryImportPanel.class);
@@ -148,7 +147,7 @@ public class RepositoryImportPanel extends FormComponentPanel<RepositoryInfo> {
                             return;
                         }
                         if (error.getKeys().isEmpty()) {
-                            final RepositoryResolver resolver = RepositoryResolver.lookup(location);
+                            final RepositoryResolver resolver = geogigResolver.lookup(location);
                             final String scheme = location.getScheme();
                             if ("file".equals(scheme)) {
                                 File repoDir = new File(location);

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -49,6 +49,7 @@ import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 import org.locationtech.geogig.cli.test.functional.CLITestContextBuilder;
 import org.locationtech.geogig.data.FeatureBuilder;
+import org.locationtech.geogig.geotools.adapt.GT;
 import org.locationtech.geogig.geotools.data.GeoGigDataStore;
 import org.locationtech.geogig.geotools.data.GeoGigDataStoreFactory;
 import org.locationtech.geogig.model.NodeRef;
@@ -241,7 +242,7 @@ public class GeoGigTestData extends ExternalResource {
     }
 
     public GeoGigTestData createTypeTree(String treePath, FeatureType type) {
-        geogig.getRepository().workingTree().createTypeTree(treePath, type);
+        geogig.getRepository().workingTree().createTypeTree(treePath, GT.adapt(type));
         return this;
     }
 
@@ -301,12 +302,12 @@ public class GeoGigTestData extends ExternalResource {
     public GeoGigTestData insert(String parentTreePath, Feature... features) {
         WorkingTree workingTree = geogig.getContext().workingTree();
         for (Feature feature : features) {
-            RevFeatureTypeBuilder builder = new RevFeatureTypeBuilder();
+            RevFeatureTypeBuilder builder = RevFeatureType.builder();
             RevFeatureBuilder b = new RevFeatureBuilder();
-            RevFeatureType type = builder.build(null, feature.getType());
+            RevFeatureType type = builder.build(null, GT.adapt(feature.getType()));
             geogig.getRepository().objectDatabase().put(type);
             String path = NodeRef.appendChild(parentTreePath, feature.getIdentifier().getID());
-            FeatureInfo info = FeatureInfo.insert(b.build(feature), type.getId(), path);
+            FeatureInfo info = FeatureInfo.insert(b.build(GT.adapt(feature)), type.getId(), path);
             workingTree.insert(info);
         }
         return this;
@@ -387,7 +388,7 @@ public class GeoGigTestData extends ExternalResource {
                                                 geogig.command(RevObjectParse.class)
                                                         .setObjectId(metadataId)))
                                 .get();
-                SimpleFeatureType featureType = (SimpleFeatureType) revType.type();
+                SimpleFeatureType featureType = GT.adapt(revType.type());
                 return featureType;
             }
         }
@@ -397,7 +398,7 @@ public class GeoGigTestData extends ExternalResource {
     }
 
     public GeoGigTestData update(String featurePath, String attributeName, @Nullable Object value) {
-        RevFeatureTypeBuilder builder = new RevFeatureTypeBuilder();
+        RevFeatureTypeBuilder builder = RevFeatureType.builder();
         RevFeatureBuilder b = new RevFeatureBuilder();
         SimpleFeature feature = getFeature(featurePath);
 
@@ -414,14 +415,14 @@ public class GeoGigTestData extends ExternalResource {
         feature.setAttribute(attributeName, actualValue);
         Context context = geogig.getContext();
         WorkingTree workingTree = context.workingTree();
-        RevFeatureType type = builder.build(null, featureType);
-        FeatureInfo info = FeatureInfo.insert(b.build(feature), type.getId(), featurePath);
+        RevFeatureType type = builder.build(null, GT.adapt(featureType));
+        FeatureInfo info = FeatureInfo.insert(b.build(GT.adapt(feature)), type.getId(), featurePath);
         workingTree.insert(info);
         return this;
     }
 
     public SimpleFeature getFeature(String featurePath) {
-        RevFeatureTypeBuilder builder = new RevFeatureTypeBuilder();
+        RevFeatureTypeBuilder builder = RevFeatureType.builder();
         Context context = geogig.getContext();
         WorkingTree workingTree = context.workingTree();
         RevTree rootWorkingTree = workingTree.getTree();
@@ -447,7 +448,7 @@ public class GeoGigTestData extends ExternalResource {
                                         .setObjectId(featureRef.getObjectId()));
 
         String id = featureRef.name();
-        Feature feature = new FeatureBuilder(builder.build(null, type)).build(id, revFeature.get());
+        Feature feature = new FeatureBuilder(builder.build(null, GT.adapt(type))).build(id, revFeature.get());
         return (SimpleFeature) feature;
     }
 

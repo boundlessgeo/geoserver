@@ -6,7 +6,7 @@ package org.geogig.geoserver.gwc;
 
 import static com.google.common.base.Optional.fromNullable;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.locationtech.geogig.model.ObjectId;

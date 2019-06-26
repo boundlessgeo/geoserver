@@ -10,7 +10,7 @@ import static org.geoserver.catalog.Predicates.equal;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -53,16 +53,17 @@ import org.locationtech.geogig.repository.Remote;
 import org.locationtech.geogig.repository.Repository;
 import org.locationtech.geogig.repository.RepositoryConnectionException;
 import org.locationtech.geogig.repository.RepositoryResolver;
-import org.locationtech.geogig.repository.impl.ContextBuilder;
+import org.locationtech.geogig.repository.impl.ContextBuilderImpl;
 import org.locationtech.geogig.repository.impl.GeoGIG;
 import org.locationtech.geogig.repository.impl.GlobalContextBuilder;
 import org.opengis.filter.Filter;
 import org.springframework.beans.factory.DisposableBean;
 
 public class RepositoryManager implements GeoServerInitializer, DisposableBean {
+    private static GeoServerGeoGigRepositoryResolver geogigResolver = new GeoServerGeoGigRepositoryResolver();
     static {
         if (GlobalContextBuilder.builder() == null
-                || GlobalContextBuilder.builder().getClass().equals(ContextBuilder.class)) {
+                || GlobalContextBuilder.builder().getClass().equals(ContextBuilderImpl.class)) {
             GlobalContextBuilder.builder(new GeoServerContextBuilder());
         }
     }
@@ -162,7 +163,7 @@ public class RepositoryManager implements GeoServerInitializer, DisposableBean {
         }
 
         Context context = GlobalContextBuilder.builder().build(hints);
-        RepositoryResolver repositoryResolver = RepositoryResolver.lookup(repoURI);
+        RepositoryResolver repositoryResolver = geogigResolver.lookup(repoURI);
         final boolean exists = repositoryResolver.repoExists(repoURI);
         Repository repository = context.repository();
         if (exists) {
@@ -328,7 +329,7 @@ public class RepositoryManager implements GeoServerInitializer, DisposableBean {
 
     private void create(final RepositoryInfo repoInfo) {
         URI repoURI = repoInfo.getLocation();
-        RepositoryResolver resolver = RepositoryResolver.lookup(repoURI);
+        RepositoryResolver resolver = geogigResolver.lookup(repoURI);
         if (!resolver.repoExists(repoURI)) {
             Hints hints = new Hints();
             hints.set(Hints.REPOSITORY_URL, repoURI);
@@ -422,7 +423,7 @@ public class RepositoryManager implements GeoServerInitializer, DisposableBean {
                 try {
                     repo.open();
                     Optional<Ref> head = repo.headRef();
-                    return head.orNull();
+                    return head.get();
                 } finally {
                     repo.close();
                 }
@@ -460,7 +461,7 @@ public class RepositoryManager implements GeoServerInitializer, DisposableBean {
                 geogigLayer.getResource().getStore().getConnectionParameters();
         String repoUriStr = String.valueOf(params.get(GeoGigDataStoreFactory.REPOSITORY.key));
         URI repoURI = URI.create(repoUriStr);
-        RepositoryResolver resolver = RepositoryResolver.lookup(repoURI);
+        RepositoryResolver resolver = geogigResolver.lookup(repoURI);
         String repoName = resolver.getName(repoURI);
         RepositoryInfo repoInfo = getByRepoName(repoName);
         String repoId = repoInfo.getId();

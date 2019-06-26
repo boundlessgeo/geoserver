@@ -38,6 +38,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.geogig.geoserver.GeoGigTestData;
 import org.geogig.geoserver.GeoGigTestData.CatalogBuilder;
+import org.geogig.geoserver.config.GeoServerGeoGigRepositoryResolver;
 import org.geogig.geoserver.config.RepositoryInfo;
 import org.geogig.geoserver.config.RepositoryManager;
 import org.geogig.geoserver.spring.config.GeogigMultipartFilter;
@@ -74,6 +75,8 @@ import org.w3c.dom.Document;
 
 @TestSetup(run = TestSetupFrequency.ONCE)
 public class GeoGigWebAPIIntegrationTest extends GeoServerSystemTestSupport {
+
+    private static GeoServerGeoGigRepositoryResolver geogigResolver = new GeoServerGeoGigRepositoryResolver();
 
     /** {@code /geogig/repos/<repoId>} */
     private static String BASE_URL;
@@ -139,7 +142,7 @@ public class GeoGigWebAPIIntegrationTest extends GeoServerSystemTestSupport {
                         dsInfo.getConnectionParameters().get(GeoGigDataStoreFactory.REPOSITORY.key);
         // resolve the repo
         URI repoURI = new URI(repoStr);
-        RepositoryResolver resolver = RepositoryResolver.lookup(repoURI);
+        RepositoryResolver resolver = geogigResolver.lookup(repoURI);
         String repoName = resolver.getName(repoURI);
         RepositoryInfo repositoryInfo = RepositoryManager.get().getByRepoName(repoName);
         assertNotNull(repositoryInfo);

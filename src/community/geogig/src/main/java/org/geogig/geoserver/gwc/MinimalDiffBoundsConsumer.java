@@ -89,7 +89,7 @@ class MinimalDiffBoundsConsumer implements PreOrderDiffWalk.Consumer {
         if (node == null) {
             return;
         }
-        final Envelope env = node.bounds().orNull();
+        final Envelope env = node.bounds().get();
         if (env == null || env.isNull()) {
             return;
         }

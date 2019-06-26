@@ -132,7 +132,7 @@ public class DirectoryChooser extends Panel {
 
         // first check if the file is a relative reference into the data dir
         if (selection != null) {
-            File relativeToDataDir = loader.url(selection.getPath());
+            File relativeToDataDir = loader.fromPath(selection.getPath()).file();
             if (relativeToDataDir != null) {
                 selection = relativeToDataDir;
             }

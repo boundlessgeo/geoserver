@@ -9,7 +9,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.geoserver.catalog.Predicates.and;
 import static org.geoserver.catalog.Predicates.equal;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -37,7 +37,7 @@ import org.locationtech.geogig.plumbing.UpdateRef;
 import org.locationtech.geogig.repository.AbstractGeoGigOp;
 import org.locationtech.geogig.repository.Context;
 import org.locationtech.geogig.repository.impl.GeogigTransaction;
-import org.locationtech.geogig.scripting.Scripting;
+//import org.locationtech.geogig.scripting.Scripting;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public class TruncateTilesOnUpdateRefHook implements CommandHook {
          * Store the ref name and its old value in the command's user properties to be used in the
          * post-hook if the operation was successful
          */
-        Map<String, Object> params = Scripting.getParamMap(command);
+        Map<String, Object> params = null;
         String refName = (String) params.get("name");
         command.getClientData().put("name", refName);
 
@@ -86,13 +86,13 @@ public class TruncateTilesOnUpdateRefHook implements CommandHook {
         ignore |= (Ref.WORK_HEAD.equals(refName) || Ref.STAGE_HEAD.equals(refName));
 
         if (ignore) {
-            command.getClientData().put("ignore", Boolean.TRUE);
+            command.getClientData().put("ignore", Boolean.TRUE.toString());
             // ignore updates to work/stage heads, we only care of updates to branches
             return command;
         }
 
         Optional<Ref> currentValue = command.command(RefParse.class).setName(refName).call();
-        command.getClientData().put("oldValue", currentValue);
+        command.getClientData().put("oldValue", currentValue.toString());
 
         LOGGER.debug("GWC geogig truncate pre-hook engaged for ref '{}'", refName);
         return command;
@@ -128,7 +128,8 @@ public class TruncateTilesOnUpdateRefHook implements CommandHook {
             return (T) retVal;
         }
 
-        final Optional<Ref> oldValue = (Optional<Ref>) cmd.getClientData().get("oldValue");
+        Ref oldRef = new Ref(cmd.getClientData().get("oldValue"), null);
+        final Optional<Ref> oldValue =  Optional.of(oldRef);
         final Optional<Ref> newValue = (Optional<Ref>) retVal; // == oldValue if the ref was deleted
 
         checkState(oldValue != null, "oldValue not captured in pre-hook");

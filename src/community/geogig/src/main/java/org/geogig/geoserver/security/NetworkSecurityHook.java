@@ -4,7 +4,7 @@
  */
 package org.geogig.geoserver.security;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
